@@ -1,0 +1,20 @@
+{
+  "overall": {
+    "psnr": 35.79,
+    "ssim": 0.9406,
+    "energy_ratio": 1.3325,
+    "peak_shift_px": 2.09
+  },
+  "quark": {
+    "psnr": 34.93,
+    "ssim": 0.9308,
+    "energy_ratio": 1.3404,
+    "peak_shift_px": 2.38
+  },
+  "gluon": {
+    "psnr": 36.7,
+    "ssim": 0.9508,
+    "energy_ratio": 1.3241,
+    "peak_shift_px": 1.8
+  }
+}

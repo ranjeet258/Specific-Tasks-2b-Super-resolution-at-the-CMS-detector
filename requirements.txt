@@ -1,0 +1,31 @@
+# CMS Calorimeter Super-Resolution GAN — Requirements
+# Install: pip install -r requirements.txt
+
+# ── Core Deep Learning ────────────────────────────────
+torch>=2.0
+torchvision>=0.15
+
+# ── Data ─────────────────────────────────────────────
+pyarrow>=12.0        # Parquet streaming (memory-safe loading)
+numpy>=1.24
+pandas>=2.0
+
+# ── Image & Physics Metrics ───────────────────────────
+scikit-image>=0.21   # PSNR, SSIM computation
+scipy>=1.11          # DiffLense preprocessing (median/gaussian filter)
+scikit-learn>=1.3    # Quark-gluon classifier (LinearSVC)
+
+# ── Visualization ─────────────────────────────────────
+matplotlib>=3.7
+Pillow>=10.0
+
+# ── Config & Utilities ────────────────────────────────
+pyyaml>=6.0
+
+# ── Notebooks ─────────────────────────────────────────
+jupyter>=1.0
+ipykernel>=6.0
+ipywidgets>=8.0
+
+# ── Optional: TensorBoard logging ─────────────────────
+# tensorboard>=2.14

@@ -1,0 +1,136 @@
+# configs/config.yaml
+# CMS Calorimeter Super-Resolution GAN — Final Working Configuration
+# ✅ All values verified from actual training run
+# Results: PSNR=35.79dB  SSIM=0.9406  peak_shift=2.09px
+
+# ─────────────────────────────────────────────
+# DATA
+# ─────────────────────────────────────────────
+data:
+  files:
+    - "data/QCDToGGQQ_IMGjet_RH1all_jet0_run0_n36272_LR.parquet"
+    - "data/QCDToGGQQ_IMGjet_RH1all_jet0_run1_n47540_LR.parquet"
+    - "data/QCDToGGQQ_IMGjet_RH1all_jet0_run2_n55494_LR.parquet"
+
+  lr_key:    "X_jets_LR"
+  hr_key:    "X_jets"
+  label_key: "y"
+
+  lr_shape: [3, 64, 64]
+  hr_shape: [3, 125, 125]
+
+  # Streaming (Kaggle-safe): never loads full dataset into RAM
+  parquet_batch_size: 32    # rows per pyarrow batch ≈ 30 MB RAM
+  cache_size: 0             # ✅ 0 = no shuffle buffer (prevents hanging)
+
+  # Split (file-level)
+  train_frac: 0.80
+  val_frac:   0.10
+  test_frac:  0.10
+  seed: 42
+
+  # Augmentation (physics-valid η–φ symmetries)
+  augment: false            # ✅ off for speed/stability
+  flip_h:  true
+  flip_v:  true
+  rot90:   true
+
+# ─────────────────────────────────────────────
+# MODEL
+# ─────────────────────────────────────────────
+model:
+  # Options: "srgan" | "transformer" | "diffusion"
+  # srgan       : Modified SRGAN + RRDB + SE + LR skip  ← USED & VERIFIED
+  # transformer : Swin-Transformer SR
+  # diffusion   : Conditional diffusion U-Net (DiffLense-inspired)
+  type: "srgan"
+
+  generator:
+    in_channels:   3
+    out_channels:  3
+    base_features: 64
+    num_res_blocks: 12      # full model — 12 RRDB blocks
+
+    # transformer-specific (unused when type=srgan)
+    n_stages:  6
+    win_size:  8
+    n_heads:   8
+
+    # diffusion-specific (unused when type=srgan)
+    n_diffusion_steps: 1000
+
+  discriminator:
+    in_channels:   3
+    base_features: 64
+    num_layers:    4
+    spectral_norm: true     # stabilises training on sparse data
+
+# ─────────────────────────────────────────────
+# TRAINING
+# ─────────────────────────────────────────────
+training:
+  pretrain_epochs: 3        # ✅ was 15 — 3 is sufficient
+  gan_epochs:      6        # ✅ was 100 — fits Kaggle 9hr session
+
+  batch_size:  8            # ✅ was 32 — 32 causes OOM on T4 GPU
+  num_workers: 0            # Keep 0 for IterableDataset (Kaggle-safe)
+  pin_memory:  true
+
+  optimizer_G:
+    type:  "Adam"
+    lr:    1.0e-4
+    betas: [0.9, 0.999]
+
+  optimizer_D:
+    type:  "Adam"
+    lr:    1.0e-4
+    betas: [0.9, 0.999]
+
+  scheduler:
+    type:    "CosineAnnealingLR"
+    T_max:   9              # pretrain_epochs + gan_epochs
+    eta_min: 1.0e-6
+
+  d_steps: 1
+  g_steps: 1
+
+  amp: true                 # FP16 mixed precision (CUDA only)
+
+  checkpoint_dir: "checkpoints"
+  save_every:     1         # ✅ save every epoch — never lose good checkpoint
+  keep_last_n:    10        # keep last 10 checkpoints
+
+  # Diffusion-specific (unused when type=srgan)
+  diffusion_inference_steps: 50
+  difflense_preprocessing:  false
+
+# ─────────────────────────────────────────────
+# LOSS WEIGHTS
+# ─────────────────────────────────────────────
+loss:
+  lambda_pixel:   1.0       # MSE pixel loss
+  lambda_adv:     0.005     # ✅ was 0.001 — stronger adversarial signal
+  lambda_energy:  2.0       # ✅ was 0.1  — physics energy conservation
+  lambda_L1:      0.0       # ✅ was 0.01 — CRITICAL: sparsity loss zeroes all pixels
+  lambda_profile: 0.05      # Jet profile shape (physics)
+
+# ─────────────────────────────────────────────
+# EVALUATION
+# ─────────────────────────────────────────────
+evaluation:
+  metrics: ["psnr", "ssim", "mae", "energy_ratio"]
+  physics_metrics: true
+  physics_keys:    ["mass", "width", "multiplicity", "tau21"]
+  qg_auc: true
+  save_figures: true
+  figures_dir:  "results/figures"
+  num_visual_samples: 16
+
+# ─────────────────────────────────────────────
+# LOGGING
+# ─────────────────────────────────────────────
+logging:
+  log_dir:    "results/logs"
+  tensorboard: false        # ✅ off — not needed, avoids import errors
+  log_every:   50
+  val_every:   1
