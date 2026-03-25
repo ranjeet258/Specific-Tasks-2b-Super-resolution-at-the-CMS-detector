@@ -1,5 +1,5 @@
 # CMS Calorimeter Super-Resolution GAN
-### ML4SCI GSoC 2026 — Task 2b: Super Resolution at the CMS Detector
+### Specific Task 2b: Super Resolution at the CMS Detector By Ranjeet Gupta
 
 Physics-informed **SRGAN** that super-resolves CMS calorimeter jet images from **64×64 (LR) → 125×125 (HR)** for quark and gluon jet classification.
 
