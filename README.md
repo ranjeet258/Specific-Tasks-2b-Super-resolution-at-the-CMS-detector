@@ -159,7 +159,6 @@ Download: [CERNBox](https://cernbox.cern.ch/s/EYgmOkI9BjwxNqy)
 ---
 
 ## Physics Motivation
-
 CMS calorimeter images are extremely sparse (~98% zero pixels) with energy concentrated in ~1.7% of pixels representing jet core deposits. Standard SR approaches fail because:
 
 1. **MSE minimization → all-zero output** (98% pixels are zero, so predicting all zeros gives low MSE)
