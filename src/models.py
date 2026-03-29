@@ -22,9 +22,11 @@ Upsampling strategy (ALL three models — fixes artifact issue):
     - 128→125 removes 3 border pixels via local averaging, zero ringing
     - Deterministic output size regardless of input padding settings
 
-References:
-  SRGAN: Ledig et al. 2017 | SwinIR: Liang et al. 2021
-  DiffLense: Reddy et al. NeurIPS ML4PS 2024 | DDPM: Ho et al. 2020
+Key architectural features:
+- Residual Dense Blocks + SE attention in SRGAN generator for better detail recovery
+- Shifted-window attention in Transformer generator for long-range spatial correlations
+- Diffusion model conditioned on upsampled LR image for stable training on sparse data
+- Spectral normalization in PatchGAN discriminator for stable adversarial training
 """
 
 from __future__ import annotations

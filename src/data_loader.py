@@ -17,15 +17,6 @@ CMSStreamDataset is a PyTorch IterableDataset that:
   3. Yields (lr, hr, label) tensors one sample at a time
   4. NEVER builds a list of all samples in memory
 
-Peak RAM usage = single row-group ≈ 32 × 2 × (3×125×125) × 4 bytes ≈ 30 MB
-(vs. 34 GB for full load)
-
-Kaggle compatibility
---------------------
-- Works in Kaggle notebooks (16 GB RAM) with any dataset size
-- num_workers=0 safe (no multiprocessing complexity for IterableDataset)
-- Compatible with DataLoader shuffle via internal buffer shuffling
-
 DiffLense-style preprocessing
 -------------------------------
 The condition-preprocessing pipeline from DiffLense (Reddy et al. 2024)

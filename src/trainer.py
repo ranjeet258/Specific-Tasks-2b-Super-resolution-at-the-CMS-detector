@@ -1,5 +1,5 @@
 """
-src/trainer.py  — FIXED VERSION
+src/trainer.py 
 """
 from __future__ import annotations
 import os, time, logging

@@ -8,7 +8,7 @@ Standard image metrics:
   - SSIM  (Structural Similarity Index)
   - MAE   (Mean Absolute Error)
 
-Physics-aware metrics (Gemini point #3):
+Physics-aware metrics:
   - Energy ratio    : Σ SR / Σ HR  (should be ≈ 1.0)
   - Jet mass (m₀)   : reconstructed from pT, η, φ of energy deposits
   - Profile χ²      : chi-squared of radial energy profiles
@@ -16,7 +16,7 @@ Physics-aware metrics (Gemini point #3):
   - Girth           : pT-weighted jet radius (quark/gluon discriminant)
   - Multiplicity    : number of non-zero pixels per channel
 
-Quark/Gluon Discrimination (Gemini point #3):
+Quark/Gluon Discrimination:
   - QuarkGluonClassifier: simple CNN trained on HR, evaluated on SR
   - If SR preserves jet substructure, classifier accuracy on SR ≈ accuracy on HR
 """
