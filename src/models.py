@@ -1,6 +1,5 @@
 """
 src/models.py
-=============
 Three generator architectures for CMS Calorimeter Super-Resolution.
 
 ┌─────────────────────────────────────────────────────────────────┐
@@ -211,13 +210,7 @@ class SwinBlock(nn.Module):
 
 
 class CMSTransformerSR(nn.Module):
-    """
-    Swin-Transformer SR generator.
-    Long-range attention captures full-jet spatial correlations — not possible
-    with convolutions alone. Alternating W-MSA and SW-MSA blocks.
-
-    Input  (B,3,64,64) → Output (B,3,125,125)
-    """
+    
     def __init__(self, in_ch=3, out_ch=3, features=64, n_stages=6, win=8, n_heads=8):
         super().__init__()
         self.shallow = nn.Conv2d(in_ch, features, 3, 1, 1)
@@ -280,11 +273,7 @@ class DiffResBlock(nn.Module):
 
 
 class CMSDiffusionDenoiser(nn.Module):
-    """
-    Conditional denoising U-Net for CMS SR.
-    Conditioned on: timestep t and pre-processed upsampled LR image.
-    Architecture: U-Net with attention bottleneck (DiffLense style).
-    """
+
     def __init__(self, in_ch=3, base_ch=64, t_dim=256):
         super().__init__()
         C = base_ch
@@ -391,11 +380,7 @@ class CMSDiffusionSR(nn.Module):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class CMSPatchGAN(nn.Module):
-    """
-    PatchGAN with spectral normalisation (Miyato et al. 2018).
-    Spectral norm constrains Lipschitz constant → stable training on sparse data.
-    Input (B,3,125,125) → patch-level real/fake logits.
-    """
+ 
     def __init__(self, in_ch=3, base_ch=64, n_layers=4):
         super().__init__()
         sn = nn.utils.spectral_norm

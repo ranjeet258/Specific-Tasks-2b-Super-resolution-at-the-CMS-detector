@@ -1,6 +1,5 @@
 """
 src/physics_metrics.py
-======================
 Physics-aware evaluation metrics for CMS calorimeter super-resolution.
 
 Implements the jet substructure observables that mentors specifically look for:
@@ -13,7 +12,6 @@ Implements the jet substructure observables that mentors specifically look for:
   6. Quark-Gluon Discriminability — AUC of a linear classifier on SR vs HR features
 
 Physics background
-------------------
 Quark jets: narrow, collimated, low multiplicity, low τ₂₁
 Gluon jets: wide, diffuse, high multiplicity, high τ₂₁
 

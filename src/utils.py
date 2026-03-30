@@ -1,6 +1,5 @@
 """
 src/utils.py
-============
 Visualization, logging, and configuration helpers.
 """
 

@@ -3,8 +3,9 @@
 
 Physics-informed **SRGAN** that super-resolves CMS calorimeter jet images from **64×64 (LR) → 125×125 (HR)** for quark and gluon jet classification.
 
----
+Note: I have included the discussion in the proposal for the required specific task. 
 
+---
 ## Results
 
 | Metric | Quark Jets | Gluon Jets | Overall |

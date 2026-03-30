@@ -1,6 +1,5 @@
 """
 src/metrics.py
-==============
 Evaluation metrics for CMS super-resolution.
 
 Standard image metrics:
@@ -72,29 +71,7 @@ def energy_ratio(sr: np.ndarray, hr: np.ndarray) -> float:
 def compute_jet_mass(image: np.ndarray,
                      eta_range: Tuple[float,float] = (-1.3, 1.3),
                      phi_range: Tuple[float,float] = (-1.3, 1.3)) -> float:
-    """
-    Estimate jet mass from the calorimeter image.
 
-    Physics derivation
-    ------------------
-    Each pixel (i,j) with energy E_ij represents a massless particle
-    (calorimeter deposit) with 4-momentum:
-
-        pT_ij  = E_ij  (massless approximation)
-        η_ij   = eta_range[0] + (i / H) * (eta_range[1] - eta_range[0])
-        φ_ij   = phi_range[0] + (j / W) * (phi_range[1] - phi_range[0])
-
-    Summing 4-momenta over all non-zero pixels:
-        px = Σ pT·cos(φ),  py = Σ pT·sin(φ),  pz = Σ pT·sinh(η),  E = Σ pT·cosh(η)
-
-    Jet mass: m² = E² - px² - py² - pz²
-
-    We use the ECAL channel (channel 0) as the primary energy proxy,
-    consistent with standard CMS jet-mass reconstruction.
-
-    image : (C, H, W) — log-normalized calorimeter image
-    Returns jet mass in log-normalized energy units.
-    """
     # Use first channel (ECAL) as pT proxy
     pT = np.expm1(np.maximum(image[0], 0.0))   # undo log(x+1)
 
@@ -116,17 +93,7 @@ def compute_jet_mass(image: np.ndarray,
 def compute_girth(image: np.ndarray,
                   eta_range: Tuple[float,float] = (-1.3, 1.3),
                   phi_range: Tuple[float,float] = (-1.3, 1.3)) -> float:
-    """
-    Jet girth: pT-weighted mean ΔR from jet axis.
 
-    Girth = Σ (pT_i / pT_jet) · ΔR_i
-
-    where ΔR_i = sqrt(Δη² + Δφ²) from the pT-weighted centroid.
-
-    Girth is a key quark/gluon discriminant:
-      Quarks → narrow jets → small girth
-      Gluons → wide jets  → large girth
-    """
     pT = np.expm1(np.maximum(image[0], 0.0))
     H, W = pT.shape
     total_pt = pT.sum()
@@ -146,10 +113,7 @@ def compute_girth(image: np.ndarray,
 
 
 def compute_multiplicity(image: np.ndarray, threshold: float = 0.01) -> float:
-    """
-    Mean number of active (above-threshold) pixels per channel.
-    Higher multiplicity → more particles → typical of gluon jets.
-    """
+ 
     active = (image > threshold).sum(axis=(-2, -1))   # (C,)
     return float(active.mean())
 
@@ -247,20 +211,7 @@ def evaluate_batch(
 # ──────────────────────────────────────────────────────────────────────────────
 
 class QuarkGluonClassifier(nn.Module):
-    """
-    Lightweight CNN classifier for quark vs gluon discrimination.
 
-    Purpose: Measure whether SR preserves jet substructure.
-
-    Protocol:
-      1. Train this classifier on HR images (ground truth)
-      2. Evaluate it on SR images (super-resolved output)
-      3. If accuracy(SR) ≈ accuracy(HR): jet substructure is preserved ✓
-         If accuracy(SR) << accuracy(HR): SR erases discriminating features ✗
-
-    Input  : (B, 3, 125, 125) — HR or SR calorimeter image
-    Output : (B, 2)            — logits for [quark, gluon]
-    """
 
     def __init__(self, in_channels: int = 3, num_classes: int = 2):
         super().__init__()
@@ -300,16 +251,7 @@ def train_qg_classifier(
     use_sr: bool = False,
     generator: nn.Module = None,
 ) -> Dict[str, list]:
-    """
-    Train the Q/G classifier on HR (or SR) images.
 
-    Parameters
-    ----------
-    use_sr     : if True, pass LR through `generator` first, then classify SR
-    generator  : the trained SR generator (used only when use_sr=True)
-
-    Returns dict of {'train_acc', 'val_acc'} per epoch.
-    """
     opt = torch.optim.Adam(classifier.parameters(), lr=1e-3)
     sch = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
     criterion = nn.CrossEntropyLoss()
@@ -377,10 +319,7 @@ def evaluate_qg_discrimination(
     generator: nn.Module = None,
     use_sr: bool = False,
 ) -> Dict[str, float]:
-    """
-    Returns accuracy and per-class precision/recall on the test set.
-    Use use_sr=True to evaluate on SR images (jet substructure check).
-    """
+   
     classifier.eval()
     if generator is not None:
         generator.eval()
@@ -419,7 +358,6 @@ def evaluate_qg_discrimination(
 # ──────────────────────────────────────────────────────────────────────────────
 
 class MetricTracker:
-    """Running averages of all metrics across an epoch."""
 
     def __init__(self):
         self._sums:   Dict[str, float] = {}
@@ -453,9 +391,7 @@ def compute_psnr(sr: np.ndarray, hr: np.ndarray) -> float:
 
 
 def compute_ssim(sr: np.ndarray, hr: np.ndarray) -> float:
-    """
-    Mean SSIM across channels.  Arrays: (C, H, W), float32.
-    """
+ 
     sr_n = _norm01(sr)
     hr_n = _norm01(hr)
     scores = []
@@ -481,10 +417,7 @@ def _norm01(x: np.ndarray) -> np.ndarray:
 # ──────────────────────────────────────────────────────────────────────────────
 
 def energy_ratio(sr: np.ndarray, hr: np.ndarray) -> float:
-    """
-    Ratio of total energy: Σ SR / Σ HR.
-    Ideal value = 1.0.  Deviations indicate energy mis-reconstruction.
-    """
+  
     e_sr = sr.sum()
     e_hr = hr.sum()
     if abs(e_hr) < 1e-8:
@@ -493,11 +426,7 @@ def energy_ratio(sr: np.ndarray, hr: np.ndarray) -> float:
 
 
 def radial_profile(image: np.ndarray) -> np.ndarray:
-    """
-    Compute the radially averaged energy profile of a 2D image.
-    image: (H, W)
-    Returns 1D profile of length min(H, W) // 2.
-    """
+
     H, W = image.shape
     cy, cx = H // 2, W // 2
     max_r = min(cy, cx)
@@ -515,10 +444,7 @@ def radial_profile(image: np.ndarray) -> np.ndarray:
 
 
 def profile_chi2(sr: np.ndarray, hr: np.ndarray) -> float:
-    """
-    Chi-squared statistic between SR and HR radial energy profiles.
-    Averaged over channels.  Lower is better.
-    """
+
     chi2s = []
     for c in range(sr.shape[0]):
         p_sr = radial_profile(sr[c])
@@ -529,11 +455,7 @@ def profile_chi2(sr: np.ndarray, hr: np.ndarray) -> float:
 
 
 def peak_shift(sr: np.ndarray, hr: np.ndarray) -> Dict[str, float]:
-    """
-    Euclidean distance between peak (max-energy) pixel positions
-    in SR vs HR.  Averaged over channels.
-    Returns dict with 'mean_px', 'eta_shift', 'phi_shift'.
-    """
+
     shifts_eta, shifts_phi = [], []
     for c in range(sr.shape[0]):
         idx_sr = np.unravel_index(np.argmax(sr[c]), sr[c].shape)
@@ -558,9 +480,7 @@ def evaluate_batch(
     sr_batch: torch.Tensor,   # (B, C, H, W)
     hr_batch: torch.Tensor,   # (B, C, H, W)
 ) -> Dict[str, float]:
-    """
-    Compute all metrics for a batch. Returns dict of mean values.
-    """
+
     sr_np = sr_batch.detach().cpu().numpy()
     hr_np = hr_batch.detach().cpu().numpy()
     B = sr_np.shape[0]
@@ -584,7 +504,6 @@ def evaluate_batch(
 
 
 class MetricTracker:
-    """Running averages of all metrics across an epoch."""
 
     def __init__(self):
         self._sums: Dict[str, float] = {}

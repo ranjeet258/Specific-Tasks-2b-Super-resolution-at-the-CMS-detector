@@ -1,6 +1,5 @@
 """
 src/losses.py
-=============
 Physics-Informed Loss Functions for CMS Super-Resolution GAN.
 
 Total generator loss:
@@ -174,12 +173,7 @@ class PhysicsGANLoss(nn.Module):
         hr: torch.Tensor,
         fake_pred: torch.Tensor,
     ) -> tuple[torch.Tensor, dict]:
-        """
-        Returns
-        -------
-        total_loss : scalar tensor
-        breakdown  : dict of individual loss values (for logging)
-        """
+      
         l_pixel   = F.mse_loss(sr, hr)
         l_adv     = self.adv_loss.generator_loss(fake_pred)
         l_energy  = self.energy_loss(sr, hr)
