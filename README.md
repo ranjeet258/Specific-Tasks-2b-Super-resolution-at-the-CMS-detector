@@ -21,6 +21,8 @@ Note: I have included the discussion in the proposal for the required specific t
 
 ## Architecture
 
+![architecture](architecture.png)
+
 ```
 Input (B,3,64,64) ─── LR bicubic skip ──────────────────────────┐
         │                                                         │
